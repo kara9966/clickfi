@@ -2,8 +2,33 @@
 <html>
 <head>
   <title>CLICKFI</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+    h1 {
+      font-size: 48px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #22c55e;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #points {
+      font-size: 40px;
+      margin: 20px;
+    }
+  </style>
 </head>
-<body style="text-align:center; font-family:sans-serif;">
+<body>
 
   <h1>CLICKFI</h1>
   <p>Click your way to crypto</p>
@@ -11,7 +36,7 @@
   <button onclick="connectWallet()">Connect Wallet</button>
   <p id="wallet"></p>
 
-  <h2 id="points">0</h2>
+  <div id="points">0</div>
   <button onclick="addPoint()">CLICK</button>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
