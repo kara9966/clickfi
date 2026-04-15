@@ -105,7 +105,7 @@
     function updateUI() {
       document.getElementById("points").innerText = points;
 
-      let percent = (points / 1000) * 1000;
+      let percent = (points / 1000) * 100;
       document.getElementById("progress").style.width = percent + "%";
     }
 
@@ -128,7 +128,7 @@
     }
 
     function claimReward() {
-      if (points < 500) return alert("Minimum 500 points");
+      if (points < 200) return alert("Minimum 200 points");
 
       alert("Reward claimed!");
       points = 0;
