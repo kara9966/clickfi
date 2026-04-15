@@ -4,27 +4,64 @@
   <title>CLICKFI</title>
   <style>
     body {
-      background: #0f172a;
+      background: #020617;
       color: white;
       text-align: center;
       font-family: Arial;
     }
+
     h1 {
-      font-size: 48px;
+      font-size: 50px;
+      margin-top: 40px;
     }
+
     button {
-      padding: 10px 20px;
+      padding: 12px 25px;
       margin: 10px;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       background: #22c55e;
       color: black;
       font-weight: bold;
       cursor: pointer;
+      transition: 0.2s;
     }
+
+    button:hover {
+      background: #4ade80;
+    }
+
+    button:active {
+      transform: scale(0.9);
+    }
+
     #points {
-      font-size: 40px;
+      font-size: 50px;
       margin: 20px;
+    }
+
+    #progressBar {
+      width: 300px;
+      height: 20px;
+      background: #1e293b;
+      margin: auto;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #progress {
+      height: 100%;
+      width: 0%;
+      background: #22c55e;
+    }
+
+    .card {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 15px;
+      width: 350px;
+      margin: 20px auto;
+      box-shadow: 0 0 20px rgba(34,197,94,0.2);
     }
   </style>
 </head>
@@ -33,56 +70,84 @@
   <h1>CLICKFI</h1>
   <p>Click your way to crypto</p>
 
-  <button onclick="connectWallet()">Connect Wallet</button>
-  <p id="wallet"></p>
+  <div class="card">
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <p id="wallet"></p>
+  </div>
 
-  <div id="points">0</div>
-  <button onclick="addPoint()">CLICK</button>
+  <div class="card">
+    <div id="points">0</div>
+
+    <div id="progressBar">
+      <div id="progress"></div>
+    </div>
+
+    <p>Daily Goal: 100</p>
+
+    <button onclick="addPoint()">CLICK</button>
+    <button onclick="claimReward()">CLAIM</button>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 
   <script>
     let lastReset = localStorage.getItem("lastReset");
-let today = new Date().toDateString();
+    let today = new Date().toDateString();
 
-if (lastReset !== today) {
-  localStorage.setItem("points", 0);
-  localStorage.setItem("lastReset", today);
-}
+    if (lastReset !== today) {
+      localStorage.setItem("points", 0);
+      localStorage.setItem("lastReset", today);
+    }
+
     let points = localStorage.getItem("points") || 0;
-document.getElementById("points").innerText = points;
+    updateUI();
 
-function addPoint() {
-  function addPoint() {
-  if (points >= 100) return alert("Daily limit reached");
-  points++;
+    function updateUI() {
+      document.getElementById("points").innerText = points;
 
-  localStorage.setItem("points", points);
-  document.getElementById("points").innerText = points;
+      let percent = (points / 100) * 100;
+      document.getElementById("progress").style.width = percent + "%";
+    }
 
-  let float = document.createElement("div");
-  float.innerText = "+1";
-  float.style.position = "absolute";
-  float.style.left = Math.random() * 80 + "%";
-  float.style.top = "50%";
-  float.style.color = "#22c55e";
+    function addPoint() {
+      if (points >= 100) return alert("Daily limit reached");
 
-  document.body.appendChild(float);
+      points++;
+      localStorage.setItem("points", points);
+      updateUI();
 
-  setTimeout(() => {
-    float.remove();
-  }, 500);
-}
-}
+      let float = document.createElement("div");
+      float.innerText = "+1";
+      float.style.position = "absolute";
+      float.style.left = Math.random() * 80 + "%";
+      float.style.top = "50%";
+      float.style.color = "#22c55e";
+      document.body.appendChild(float);
 
-async function connectWallet() {
-  if (window.ethereum) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const address = await signer.getAddress();
-    document.getElementById("wallet").innerText = address;
-  } else {
-    alert("Install MetaMask");
-  }
-}
+      setTimeout(() => float.remove(), 500);
+    }
+
+    function claimReward() {
+      if (points < 50) return alert("Minimum 50 points");
+
+      alert("Reward claimed!");
+      points = 0;
+      localStorage.setItem("points", points);
+      updateUI();
+    }
+
+    async function connectWallet() {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
+        document.getElementById("wallet").innerText = address;
+      } else {
+        alert("Install MetaMask");
+      }
+    }
+  </script>
+
+</body>
+</html>
