@@ -82,7 +82,7 @@
       <div id="progress"></div>
     </div>
 
-    <p>Daily Goal: 100</p>
+    <p>Daily Goal: 1000</p>
 
     <button onclick="addPoint()">CLICK</button>
     <button onclick="claimReward()">CLAIM</button>
@@ -105,12 +105,12 @@
     function updateUI() {
       document.getElementById("points").innerText = points;
 
-      let percent = (points / 100) * 100;
+      let percent = (points / 1000) * 1000;
       document.getElementById("progress").style.width = percent + "%";
     }
 
     function addPoint() {
-      if (points >= 100) return alert("Daily limit reached");
+      if (points >= 1000) return alert("Daily limit reached");
 
       points++;
       localStorage.setItem("points", points);
@@ -128,7 +128,7 @@
     }
 
     function claimReward() {
-      if (points < 50) return alert("Minimum 50 points");
+      if (points < 500) return alert("Minimum 500 points");
 
       alert("Reward claimed!");
       points = 0;
