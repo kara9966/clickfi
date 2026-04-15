@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CLICKFI</title>
+</head>
+<body style="text-align:center; font-family:sans-serif;">
+
+  <h1>CLICKFI</h1>
+  <p>Click your way to crypto</p>
+
+  <button onclick="connectWallet()">Connect Wallet</button>
+  <p id="wallet"></p>
+
+  <h2 id="points">0</h2>
+  <button onclick="addPoint()">CLICK</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+
+  <script>
+    let points = 0;
+
+    function addPoint() {
+      if (points >= 100) return alert("Daily limit reached");
+      points++;
+      document.getElementById("points").innerText = points;
+    }
+
+    async function connectWallet() {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
+        document.getElementById("wallet").innerText = address;
+      } else {
+        alert("Install MetaMask");
+      }
+    }
+  </script>
+
+</body>
+</html>
