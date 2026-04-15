@@ -12,39 +12,47 @@
 
     h1 {
       font-size: 50px;
-      margin-top: 40px;
+      margin-top: 30px;
     }
 
     button {
-      padding: 12px 25px;
-      margin: 10px;
+      padding: 10px 20px;
+      margin: 8px;
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       background: #22c55e;
       color: black;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      background: #4ade80;
     }
 
     button:active {
       transform: scale(0.9);
     }
 
+    input {
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      margin: 5px;
+    }
+
+    .card {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 15px;
+      width: 350px;
+      margin: 15px auto;
+    }
+
     #points {
-      font-size: 50px;
-      margin: 20px;
+      font-size: 40px;
     }
 
     #progressBar {
-      width: 300px;
-      height: 20px;
+      width: 100%;
+      height: 15px;
       background: #1e293b;
-      margin: auto;
       border-radius: 10px;
       overflow: hidden;
     }
@@ -54,100 +62,149 @@
       width: 0%;
       background: #22c55e;
     }
-
-    .card {
-      background: #0f172a;
-      padding: 20px;
-      border-radius: 15px;
-      width: 350px;
-      margin: 20px auto;
-      box-shadow: 0 0 20px rgba(34,197,94,0.2);
-    }
   </style>
 </head>
 <body>
 
-  <h1>CLICKFI</h1>
-  <p>Click your way to crypto</p>
+<h1>CLICKFI</h1>
+<p>Click your way to crypto</p>
 
-  <div class="card">
-    <button onclick="connectWallet()">Connect Wallet</button>
-    <p id="wallet"></p>
+<div class="card">
+  <input id="username" placeholder="Enter username" />
+  <button onclick="saveName()">Save</button>
+  <p id="savedName"></p>
+</div>
+
+<div class="card">
+  <button onclick="connectWallet()">Connect Wallet</button>
+  <p id="wallet"></p>
+</div>
+
+<div class="card">
+  <div id="points">0</div>
+
+  <div id="progressBar">
+    <div id="progress"></div>
   </div>
 
-  <div class="card">
-    <div id="points">0</div>
+  <p>Daily Goal: 1000</p>
 
-    <div id="progressBar">
-      <div id="progress"></div>
-    </div>
+  <button onclick="addPoint()">CLICK</button>
+  <button onclick="claimReward()">CLAIM</button>
+</div>
 
-    <p>Daily Goal: 1000</p>
+<div class="card">
+  <h3>Leaderboard</h3>
+  <ul id="leaderboard"></ul>
+</div>
 
-    <button onclick="addPoint()">CLICK</button>
-    <button onclick="claimReward()">CLAIM</button>
-  </div>
+<script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+<script>
+let lastReset = localStorage.getItem("lastReset");
+let today = new Date().toDateString();
 
-  <script>
-    let lastReset = localStorage.getItem("lastReset");
-    let today = new Date().toDateString();
+if (lastReset !== today) {
+  localStorage.setItem("points", 0);
+  localStorage.setItem("lastReset", today);
+}
 
-    if (lastReset !== today) {
-      localStorage.setItem("points", 0);
-      localStorage.setItem("lastReset", today);
+let points = localStorage.getItem("points") || 0;
+updateUI();
+
+// USERNAME
+function saveName() {
+  let name = document.getElementById("username").value;
+  localStorage.setItem("username", name);
+  document.getElementById("savedName").innerText = "Player: " + name;
+}
+
+let saved = localStorage.getItem("username");
+if (saved) {
+  document.getElementById("savedName").innerText = "Player: " + saved;
+}
+
+// UI UPDATE
+function updateUI() {
+  document.getElementById("points").innerText = points;
+
+  let percent = (points / 1000) * 100;
+  document.getElementById("progress").style.width = percent + "%";
+}
+
+// CLICK
+function addPoint() {
+  if (points >= 1000) return alert("Daily limit reached");
+
+  points++;
+  localStorage.setItem("points", points);
+
+  let username = localStorage.getItem("username") || "anon";
+  localStorage.setItem("score_" + username, points);
+
+  updateUI();
+  loadLeaderboard();
+
+  let float = document.createElement("div");
+  float.innerText = "+1";
+  float.style.position = "absolute";
+  float.style.left = Math.random() * 80 + "%";
+  float.style.top = "50%";
+  float.style.color = "#22c55e";
+  document.body.appendChild(float);
+
+  setTimeout(() => float.remove(), 500);
+}
+
+// CLAIM
+function claimReward() {
+  if (points < 200) return alert("Minimum 200 points");
+
+  alert("Reward claimed!");
+  points = 0;
+  localStorage.setItem("points", points);
+  updateUI();
+}
+
+// LEADERBOARD
+function loadLeaderboard() {
+  let list = document.getElementById("leaderboard");
+  list.innerHTML = "";
+
+  let scores = [];
+
+  for (let key in localStorage) {
+    if (key.startsWith("score_")) {
+      let name = key.replace("score_", "");
+      let score = parseInt(localStorage.getItem(key));
+      scores.push({ name, score });
     }
+  }
 
-    let points = localStorage.getItem("points") || 0;
-    updateUI();
+  scores.sort((a, b) => b.score - a.score);
 
-    function updateUI() {
-      document.getElementById("points").innerText = points;
+  scores.slice(0, 5).forEach(s => {
+    let li = document.createElement("li");
+    li.innerText = s.name + " - " + s.score;
+    list.appendChild(li);
+  });
+}
 
-      let percent = (points / 1000) * 100;
-      document.getElementById("progress").style.width = percent + "%";
-    }
+loadLeaderboard();
 
-    function addPoint() {
-      if (points >= 1000) return alert("Daily limit reached");
-
-      points++;
-      localStorage.setItem("points", points);
-      updateUI();
-
-      let float = document.createElement("div");
-      float.innerText = "+1";
-      float.style.position = "absolute";
-      float.style.left = Math.random() * 80 + "%";
-      float.style.top = "50%";
-      float.style.color = "#22c55e";
-      document.body.appendChild(float);
-
-      setTimeout(() => float.remove(), 500);
-    }
-
-    function claimReward() {
-      if (points < 200) return alert("Minimum 200 points");
-
-      alert("Reward claimed!");
-      points = 0;
-      localStorage.setItem("points", points);
-      updateUI();
-    }
-
-    async function connectWallet() {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const address = await signer.getAddress();
-        document.getElementById("wallet").innerText = address;
-      } else {
-        alert("Install MetaMask");
-      }
-    }
-  </script>
+// WALLET
+async function connectWallet() {
+  if (window.ethereum) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+    document.getElementById("wallet").innerText = address;
+  } else {
+    alert("Install MetaMask");
+  }
+}
+</script>
 
 </body>
 </html>
