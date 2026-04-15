@@ -42,26 +42,24 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 
   <script>
-    let points = 0;
+    let points = localStorage.getItem("points") || 0;
+document.getElementById("points").innerText = points;
 
-    function addPoint() {
-      if (points >= 100) return alert("Daily limit reached");
-      points++;
-      document.getElementById("points").innerText = points;
-    }
+function addPoint() {
+  if (points >= 100) return alert("Daily limit reached");
+  points++;
+  localStorage.setItem("points", points);
+  document.getElementById("points").innerText = points;
+}
 
-    async function connectWallet() {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const address = await signer.getAddress();
-        document.getElementById("wallet").innerText = address;
-      } else {
-        alert("Install MetaMask");
-      }
-    }
-  </script>
-
-</body>
-</html>
+async function connectWallet() {
+  if (window.ethereum) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+    document.getElementById("wallet").innerText = address;
+  } else {
+    alert("Install MetaMask");
+  }
+}
