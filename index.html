@@ -53,10 +53,26 @@ if (lastReset !== today) {
 document.getElementById("points").innerText = points;
 
 function addPoint() {
+  function addPoint() {
   if (points >= 100) return alert("Daily limit reached");
   points++;
+
   localStorage.setItem("points", points);
   document.getElementById("points").innerText = points;
+
+  let float = document.createElement("div");
+  float.innerText = "+1";
+  float.style.position = "absolute";
+  float.style.left = Math.random() * 80 + "%";
+  float.style.top = "50%";
+  float.style.color = "#22c55e";
+
+  document.body.appendChild(float);
+
+  setTimeout(() => {
+    float.remove();
+  }, 500);
+}
 }
 
 async function connectWallet() {
