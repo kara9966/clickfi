@@ -1,207 +1,210 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CLICKFI</title>
-  <style>
-    body {
-      background: #020617;
-      color: white;
-      text-align: center;
-      font-family: Arial;
-    }
+<title>CLICKFI</title>
 
-    h1 {
-      font-size: 50px;
-      margin-top: 30px;
-    }
+<style>
+body {
+  background: #020617;
+  color: white;
+  font-family: Arial;
+  margin: 0;
+}
 
-    button {
-      padding: 10px 20px;
-      margin: 8px;
-      border: none;
-      border-radius: 10px;
-      background: #22c55e;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-    }
+/* TOP NAV */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+}
 
-    button:active {
-      transform: scale(0.9);
-    }
+.nav h2 {
+  color: #22c55e;
+}
 
-    input {
-      padding: 8px;
-      border-radius: 8px;
-      border: none;
-      margin: 5px;
-    }
+.nav button {
+  background: #22c55e;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-    .card {
-      background: #0f172a;
-      padding: 20px;
-      border-radius: 15px;
-      width: 350px;
-      margin: 15px auto;
-    }
+/* LAYOUT */
+.container {
+  display: flex;
+}
 
-    #points {
-      font-size: 40px;
-    }
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #020617;
+  padding: 20px;
+  border-right: 1px solid #1e293b;
+}
 
-    #progressBar {
-      width: 100%;
-      height: 15px;
-      background: #1e293b;
-      border-radius: 10px;
-      overflow: hidden;
-    }
+.sidebar button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  color: white;
+}
 
-    #progress {
-      height: 100%;
-      width: 0%;
-      background: #22c55e;
-    }
-  </style>
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+/* CARD */
+.card {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+
+/* SCORE */
+.score {
+  font-size: 50px;
+  color: #22c55e;
+}
+
+/* PROGRESS */
+.bar {
+  height: 10px;
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+.fill {
+  height: 100%;
+  background: #22c55e;
+  width: 0%;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  text-align: left;
+}
+
+td {
+  padding: 5px;
+}
+</style>
 </head>
+
 <body>
 
-<h1>CLICKFI</h1>
-<p>Click your way to crypto</p>
+<div class="nav">
+  <h2>CLICKFI</h2>
+  <button onclick="connectWallet()">Connect</button>
+</div>
+
+<div class="container">
+
+<div class="sidebar">
+  <button>Play</button>
+  <button>Leaderboard</button>
+  <button>Rewards</button>
+</div>
+
+<div class="main">
 
 <div class="card">
-  <input id="username" placeholder="Enter username" />
+  <h3>PLAYER</h3>
+  <input id="username" placeholder="Enter name">
   <button onclick="saveName()">Save</button>
   <p id="savedName"></p>
 </div>
 
 <div class="card">
-  <button onclick="connectWallet()">Connect Wallet</button>
-  <p id="wallet"></p>
-</div>
+  <h3>CLICK ENGINE</h3>
+  <div class="score" id="points">0</div>
 
-<div class="card">
-  <div id="points">0</div>
-
-  <div id="progressBar">
-    <div id="progress"></div>
+  <div class="bar">
+    <div class="fill" id="progress"></div>
   </div>
 
-  <p>Daily Goal: 1000</p>
+  <p>Goal: 1000</p>
 
   <button onclick="addPoint()">CLICK</button>
   <button onclick="claimReward()">CLAIM</button>
 </div>
 
 <div class="card">
-  <h3>Leaderboard</h3>
-  <ul id="leaderboard"></ul>
+  <h3>LEADERBOARD</h3>
+  <table id="leaderboard"></table>
+</div>
+
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 
 <script>
-let lastReset = localStorage.getItem("lastReset");
-let today = new Date().toDateString();
-
-if (lastReset !== today) {
-  localStorage.setItem("points", 0);
-  localStorage.setItem("lastReset", today);
-}
-
 let points = localStorage.getItem("points") || 0;
 updateUI();
 
-// USERNAME
-function saveName() {
-  let name = document.getElementById("username").value;
-  localStorage.setItem("username", name);
-  document.getElementById("savedName").innerText = "Player: " + name;
-}
-
-let saved = localStorage.getItem("username");
-if (saved) {
-  document.getElementById("savedName").innerText = "Player: " + saved;
-}
-
-// UI UPDATE
 function updateUI() {
   document.getElementById("points").innerText = points;
-
-  let percent = (points / 1000) * 100;
-  document.getElementById("progress").style.width = percent + "%";
+  document.getElementById("progress").style.width = (points/1000*100) + "%";
 }
 
-// CLICK
 function addPoint() {
-  if (points >= 1000) return alert("Daily limit reached");
+  if (points >= 1000) return;
 
   points++;
   localStorage.setItem("points", points);
 
-  let username = localStorage.getItem("username") || "anon";
-  localStorage.setItem("score_" + username, points);
+  let name = localStorage.getItem("username") || "anon";
+  localStorage.setItem("score_"+name, points);
 
   updateUI();
   loadLeaderboard();
-
-  let float = document.createElement("div");
-  float.innerText = "+1";
-  float.style.position = "absolute";
-  float.style.left = Math.random() * 80 + "%";
-  float.style.top = "50%";
-  float.style.color = "#22c55e";
-  document.body.appendChild(float);
-
-  setTimeout(() => float.remove(), 500);
 }
 
-// CLAIM
 function claimReward() {
-  if (points < 200) return alert("Minimum 200 points");
-
-  alert("Reward claimed!");
+  alert("Claimed!");
   points = 0;
-  localStorage.setItem("points", points);
+  localStorage.setItem("points", 0);
   updateUI();
 }
 
-// LEADERBOARD
-function loadLeaderboard() {
-  let list = document.getElementById("leaderboard");
-  list.innerHTML = "";
+function saveName() {
+  let name = document.getElementById("username").value;
+  localStorage.setItem("username", name);
+  document.getElementById("savedName").innerText = name;
+}
 
-  let scores = [];
+function loadLeaderboard() {
+  let table = document.getElementById("leaderboard");
+  table.innerHTML = "";
 
   for (let key in localStorage) {
     if (key.startsWith("score_")) {
       let name = key.replace("score_", "");
-      let score = parseInt(localStorage.getItem(key));
-      scores.push({ name, score });
+      let score = localStorage.getItem(key);
+
+      let row = `<tr><td>${name}</td><td>${score}</td></tr>`;
+      table.innerHTML += row;
     }
   }
-
-  scores.sort((a, b) => b.score - a.score);
-
-  scores.slice(0, 5).forEach(s => {
-    let li = document.createElement("li");
-    li.innerText = s.name + " - " + s.score;
-    list.appendChild(li);
-  });
 }
 
 loadLeaderboard();
 
-// WALLET
 async function connectWallet() {
   if (window.ethereum) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
-    const address = await signer.getAddress();
-    document.getElementById("wallet").innerText = address;
-  } else {
-    alert("Install MetaMask");
+    document.getElementById("savedName").innerText = await signer.getAddress();
   }
 }
 </script>
