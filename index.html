@@ -1,211 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CLICKFI</title>
+<title>CLICKFI RUSH</title>
 
 <style>
 body {
-  background: #020617;
-  color: white;
-  font-family: Arial;
-  margin: 0;
+  background:#020617;
+  color:white;
+  font-family:Arial;
+  text-align:center;
 }
 
-/* TOP NAV */
-.nav {
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 30px;
-  background: #0f172a;
-  border-bottom: 1px solid #1e293b;
+h1 {
+  color:#22c55e;
 }
 
-.nav h2 {
-  color: #22c55e;
-}
-
-.nav button {
-  background: #22c55e;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* LAYOUT */
-.container {
-  display: flex;
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 220px;
-  background: #020617;
-  padding: 20px;
-  border-right: 1px solid #1e293b;
-}
-
-.sidebar button {
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  color: white;
-}
-
-/* MAIN */
-.main {
-  flex: 1;
-  padding: 20px;
-}
-
-/* CARD */
 .card {
-  background: #0f172a;
-  padding: 20px;
-  border-radius: 15px;
-  margin-bottom: 20px;
+  background:#0f172a;
+  padding:20px;
+  margin:15px auto;
+  width:350px;
+  border-radius:15px;
 }
 
-/* SCORE */
-.score {
-  font-size: 50px;
-  color: #22c55e;
+button {
+  padding:10px 20px;
+  margin:5px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
 }
 
-/* PROGRESS */
-.bar {
-  height: 10px;
-  background: #1e293b;
-  border-radius: 10px;
+.over {background:#22c55e;}
+.under {background:#ef4444;}
+
+#timer {
+  font-size:40px;
 }
 
-.fill {
-  height: 100%;
-  background: #22c55e;
-  width: 0%;
-}
-
-/* TABLE */
-table {
-  width: 100%;
-  text-align: left;
-}
-
-td {
-  padding: 5px;
+#price {
+  font-size:50px;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<div class="nav">
-  <h2>CLICKFI</h2>
-  <button onclick="connectWallet()">Connect</button>
-</div>
-
-<div class="container">
-
-<div class="sidebar">
-  <button>Play</button>
-  <button>Leaderboard</button>
-  <button>Rewards</button>
-</div>
-
-<div class="main">
+<h1>CLICKFI RUSH</h1>
+<p>Predict. Win. Repeat.</p>
 
 <div class="card">
-  <h3>PLAYER</h3>
-  <input id="username" placeholder="Enter name">
-  <button onclick="saveName()">Save</button>
-  <p id="savedName"></p>
+  <div id="timer">15</div>
+  <div id="price">100</div>
+  <p>Will it go UP or DOWN?</p>
+
+  <button class="over" onclick="choose('up')">UP</button>
+  <button class="under" onclick="choose('down')">DOWN</button>
 </div>
 
 <div class="card">
-  <h3>CLICK ENGINE</h3>
-  <div class="score" id="points">0</div>
-
-  <div class="bar">
-    <div class="fill" id="progress"></div>
-  </div>
-
-  <p>Goal: 1000</p>
-
-  <button onclick="addPoint()">CLICK</button>
-  <button onclick="claimReward()">CLAIM</button>
+  <h3 id="result">Waiting...</h3>
 </div>
-
-<div class="card">
-  <h3>LEADERBOARD</h3>
-  <table id="leaderboard"></table>
-</div>
-
-</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 
 <script>
-let points = localStorage.getItem("points") || 0;
-updateUI();
+let time = 15;
+let price = 100;
+let choice = null;
 
-function updateUI() {
-  document.getElementById("points").innerText = points;
-  document.getElementById("progress").style.width = (points/1000*100) + "%";
+function tick() {
+  time--;
+  document.getElementById("timer").innerText = time;
+
+  // fake market movement
+  price += Math.floor(Math.random()*10 - 5);
+  document.getElementById("price").innerText = price;
+
+  if (time <= 0) endRound();
 }
 
-function addPoint() {
-  if (points >= 1000) return;
+setInterval(tick,1000);
 
-  points++;
-  localStorage.setItem("points", points);
-
-  let name = localStorage.getItem("username") || "anon";
-  localStorage.setItem("score_"+name, points);
-
-  updateUI();
-  loadLeaderboard();
+function choose(c) {
+  choice = c;
 }
 
-function claimReward() {
-  alert("Claimed!");
-  points = 0;
-  localStorage.setItem("points", 0);
-  updateUI();
-}
+function endRound() {
+  let finalMove = Math.random() > 0.5 ? "up" : "down";
 
-function saveName() {
-  let name = document.getElementById("username").value;
-  localStorage.setItem("username", name);
-  document.getElementById("savedName").innerText = name;
-}
-
-function loadLeaderboard() {
-  let table = document.getElementById("leaderboard");
-  table.innerHTML = "";
-
-  for (let key in localStorage) {
-    if (key.startsWith("score_")) {
-      let name = key.replace("score_", "");
-      let score = localStorage.getItem(key);
-
-      let row = `<tr><td>${name}</td><td>${score}</td></tr>`;
-      table.innerHTML += row;
-    }
+  if (choice === finalMove) {
+    document.getElementById("result").innerText = "YOU WIN";
+  } else {
+    document.getElementById("result").innerText = "YOU LOSE";
   }
-}
 
-loadLeaderboard();
-
-async function connectWallet() {
-  if (window.ethereum) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    document.getElementById("savedName").innerText = await signer.getAddress();
-  }
+  // reset
+  time = 15;
+  choice = null;
 }
 </script>
 
