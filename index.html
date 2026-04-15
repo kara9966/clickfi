@@ -42,6 +42,13 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
 
   <script>
+    let lastReset = localStorage.getItem("lastReset");
+let today = new Date().toDateString();
+
+if (lastReset !== today) {
+  localStorage.setItem("points", 0);
+  localStorage.setItem("lastReset", today);
+}
     let points = localStorage.getItem("points") || 0;
 document.getElementById("points").innerText = points;
 
